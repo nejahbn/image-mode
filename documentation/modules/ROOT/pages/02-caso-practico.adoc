@@ -1,43 +1,42 @@
-= Creación de una máquina virtual con bootc containers
+= Creating a Virtual Machine with Bootc Containers
 include::_attributes.adoc[]
 
 [#descripcion]
-== Descripción
+== Description
 
-En este caso práctico, crearemos una máquina virtual (VM) a partir de una imágen de contenedor.
+In this practical case, we will create a virtual machine (VM) from a container image.
 
-Veremos cómo bootc aprovecha la tecnología de contenedores existente para:
+We will see how bootc leverages existing container technology to:
 
-* Crear al aplicación en términos de su contenedor en tiempo de creación - el sistema no se cambia una vez desplegado.
-* Acceder automáticamente al registro de imágenes del contenedor desplegado para automáticamente actualizar el sistema.
-* Revertir el último cambio.
+* Create the application in terms of its container at creation time—the system is not changed once deployed.
+* Automatically access the registry of the deployed container image to automatically update the system.
+* Revert the last change.
 
-La infraestructura que utilizarás para esta laboratorio es la siguiente:
+The infrastructure you will use for this lab is as follows:
 
 image::diagram.png[]
 
-* Un portátil con Red Hat Enterprise Linux 9.4 como workstation.
-* Una máquina virtual con Red Hat Enterprise Linux 9.4 y hostname **imagemode** que utilizarás para el laboratorio.
-* Una máquina virtual con hostname **imagemodetest** que crearás.
+* A laptop with Red Hat Enterprise Linux 9.4 as the workstation.
+* A virtual machine 
 
 [IMPORTANT]
 ====
-Para el laboratorio utilizar usuario **student** y password **redhat** para acceder a la máquina **imagemode** utilizando ssh desde el portátil.
+For the lab, use the user **student** and password **redhat** to access the **imagemode** machine using ssh from the laptop.
 
-Para acceder a la máquina **image-mode-test**, una vez la hayamos creado, podemos conectarnos a ella por ssh con el usuario **root** desde la máquina **imagemode**, con usuario **demouser** y password **redhat**.
+To access the **image-mode-test** machine once it has been created, you can connect to it via ssh with the **root** user from the **imagemode** machine, using the **demouser** username and password **redhat**.
 ====
 
 [IMPORTANT]
 ====
-Una vez que termines el laboratorio es MUY importante que cierres sesión para que se resetee el entorno y el siguiente usuario pueda utilizarlo.
+Once you finish the lab, it is VERY important to log out so that the environment resets and the next user can use it.
 
-Muchas gracias!!!
+Thank you very much!!!
 ====
 
 [#crear-images]
-== Creación de la primera imagen
+== Creating the First Image
 
-La definición de un contenedor es prácticamente igual que la de un contenedor tradicional, lo que cambia es la cláusula `+FROM+`.
+The definition of a container is almost the same as a traditional container, with the only difference being the `+FROM+` clause.
 
 [.lines_7]
 [.console-input]
@@ -48,51 +47,11 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.4
 
 [IMPORTANT]
 =====
-Para acceder a la imagen anterior es necesario autenticarse en el registry de Red Hat con un usuario válido. En este laboratorio se proporcionan las imágenes ya descargadas con lo cual no será necesario realizar este paso.
-=====
-
-[NOTE]
-=====
-Es posible también el utilizar las versiones de desarrollo utilizando **CentOS Stream**:
-
-[.lines_7]
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-FROM quay.io/centos-bootc/centos-bootc:stream9
-----
-=====
-
-En nuestro ejemplo simplemente crearemos un contenedor que instala y configura un servidor apache para servir contenido mediante el protocolo HTTPS.
-
-Bootc viene instalado en esas imágenes junto con un temporizador que periódicamente comprueba si existen actualizaciones y, de existir, las aplicará.
-
-Para nuestro caso práctico vamos a crear un sistema con el temporizador comprobando si existen actualizaciones cada 30 segundos. Para esto sobreescribimos
-el temporizador en el momento de la creación de la imagen. Usamos el Containerfile:
-
-[.lines_7]
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
-FROM registry.redhat.io/rhel9/rhel-bootc:9.4
-RUN /usr/bin/dnf -y install firewalld httpd php mod_ssl langpacks-es && /usr/bin/rm -f /etc/httpd/conf.d/welcome.conf && /usr/bin/systemctl enable httpd
-COPY bootc-fetch-apply-updates.timer /lib/systemd/system/
-COPY motd /etc/motd.d/
-COPY hostname /etc/
-COPY index.php /var/www/html
-COPY httpd.key /etc/pki/tls/private/
-COPY httpd.crt /etc/pki/tls/certs/
-COPY cacert.pem /etc/pki/tls/certs/
-COPY ssl.conf /etc/httpd/conf.d/
-COPY public.xml /etc/firewalld/zones/
-COPY registries.conf /etc/containers/
-EXPOSE 443
-CMD [ "/sbin/init" ]
-----
+To access the above image, it is necessary to authenticate in the Red Hat registry with a valid user. In this lab, the image
 
 [IMPORTANT]
 =====
-Como hemos comentado **bootc containers** se encuentra en **Technology Preview** y todavía hay opciones de configuración que se están implementando. Por ese motivo hemos tenido que recurrir a:
+As mentioned, **bootc containers** is in **Technology Preview**, and there are still configuration options being implemented. For this reason, we had to resort to:
 
 [.lines_7]
 [.console-input]
@@ -104,7 +63,7 @@ RUN /usr/bin/dnf -y install firewalld httpd php mod_ssl langpacks-es && /usr/bin
 
 [NOTE]
 =====
-El timer de systemd que se encarga de comprobar si hay actualizaciones:
+The systemd timer responsible for checking for updates:
 
 [.lines_7]
 [.console-input]
@@ -132,7 +91,7 @@ $
 
 [TIP]
 =====
-Abrimos una terminal en el portátil y nos conectamos por ssh con el usuario **student** al host **imagemode**, donde creamos el contedor utilizando podman. Se proporciona un script llamado **create-container.sh** que se encargará de crear el contenedor con solo ejecutarlo:
+Open a terminal on the laptop and connect via ssh with the **student** user to the **imagemode** host, where we create the container using podman. A script named **create-container.sh** is provided, which will handle creating the container just by running it:
 
 [.lines_7]
 [.console-input]
@@ -148,7 +107,7 @@ podman build -f Containerfile.rhel9.4 -t rhel-bootc-vm:latest .
 
 if [ $? -ne 0 ]
 then
-  echo "ERROR AL CONSTRUIR LA IMAGEN"
+  echo "ERROR BUILDING THE IMAGE"
   exit 1
 fi
 
@@ -156,7 +115,7 @@ podman tag localhost/rhel-bootc-vm:latest registry.lab.melmac.univ:5000/rhel-boo
 
 if [ $? -ne 0 ]
 then
-  echo "ERROR TAGEAR LA IMAGEN"
+  echo "ERROR TAGGING THE IMAGE"
   exit 1
 fi
 
@@ -164,7 +123,7 @@ podman push registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
 
 if [ $? -ne 0 ]
 then
-  echo "ERROR TAGEAR AL HACER PUSH"
+  echo "ERROR PUSHING THE IMAGE"
   exit 1
 fi
 [root@imagemode image-mode]# bash create-container.sh
@@ -177,25 +136,22 @@ localhost/rhel-bootc-vm                       latest       cc3e1af1b6a6  2 minut
 ----
 =====
 
-En caso de bootable containers, no vamos a ejecutar esas imágenes sobre sistemas existentes sino vamos a crear sistemas con esos contenedores ya instalados.
+In the case of bootable containers, we are not going to run these images on existing systems but rather create systems with these containers already installed.
 
-Podemos crear sistemas de varias maneras: 
+We can create systems in several ways:
 
-1. Con imágenes para máquinas virtuales.
-2. También creando DVDs (ISO) que podemos utilizar para automáticamente instalar
-un servidor baremetal con https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automatically_installing_rhel/automated-installation-workflow_rhel-installer#automated-installation-workflow_rhel-installer[kickstart].
+1. With images for virtual machines.
+2. By creating DVDs (ISO) that we can use to automatically install a bare-metal server with [kickstart](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automatically_installing_rhel/automated-installation-workflow_rhel-installer#automated-installation-workflow_rhel-installer).
 
-En este laboratorio nos vamos a centrar en el punto 1. Vamos a utilizar https://github.com/osbuild/bootc-image-builder[bootc-image-builder] para crear una VM de tipo KVM para ejecutarla en Linux utilizando https://libvirt.org[libvirt].
+In this lab, we will focus on point 1. We will use [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) to create a KVM-type VM to run on Linux using [libvirt](https://libvirt.org).
 
-El bootc-image-builder está diseñado para ejecutarse desde un contenedor. Creamos un archivo `+config.toml+` para configurar un usuario y usamos podman para ejecutar la aplicación con nuestro container. Mas información en https://github.com/osbuild/bootc-image-builder[bootc-image-builder].
+The bootc-image-builder is designed to run from a container. We create a `config.toml` file to configure a user and use Podman to run the application with our container. More information at [bootc-image-builder](https://github.com/osbuild/bootc-image-builder).
 
 [TIP]
 =====
-En la máquina **imagemode** donde ya estamos conectados y como usuario **root**:
-[.lines_7]
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
+On the **imagemode** machine, where we are already connected as user **root**:
+
+```bash
 [root@imagemode image-mode]# mkdir output
 [root@imagemode image-mode]# cat config.toml
 [[blueprint.customizations.user]]
@@ -214,7 +170,7 @@ groups = ["wheel"]
 
 if [ $? -ne 0 ]
 then
-  echo "Ocurrió un error creando la VM"
+  echo "An error occurred while creating the VM"
   exit 1
 fi
 
@@ -222,133 +178,117 @@ fi
 [root@imagemode image-mode]# bash creating-vm.sh
 ...
 [root@imagemode image-mode]#
-----
+```
 
-**Será necesario esperar a que termine la ejecución del script para continuar con el laboratorio.**
+**It will be necessary to wait for the script execution to complete before continuing with the lab.**
 =====
 
 [IMPORTANT]
 =====
-Revisa el fichero de configuración **config.toml** ya que en el se define el usuario que se utilizará para conectarse a la máquina virtual que vamos a crear, además de su password y también se configura la clave pública del usuario **root** de la máquina **imagemode**. De esta forma se podrá acceder desde dicho usuario a la máquina que hemos creado por ssh con el usuario **demouser** sin facilitar la contraseña. Sin embargo, en la máquina que vamos a crear necesitaremos el password del usuario **demouser** para poder acceder al usuario **root**.
+Check the **config.toml** configuration file as it defines the user that will be used to connect to the virtual machine we are going to create, along with their password. It also configures the public key of the **root** user of the **imagemode** machine. This allows access from that user to the created machine via SSH with the **demouser** user without providing a password. However, in the newly created machine, we will need the **demouser** user’s password to access the **root** user.
 =====
 
-Cuando termine la ejecución de este script se habrá creado el disco de la máquina virtual y quedará dentro del directorio **output**. El script se encarga de copiar dicho disco a una unidad compartida para poder ejecutar la máquina virtual en el portátil.
-
-[TIP]
-=====
-Utilizando los comandos **cd** y **ls** puedes navegar por el directorio **output** creado en la máquina **imagemode** para ver que tipo de contenido se ha generado.
-=====
-
-El script anterior ha creado, como habrás visto, un disco virtual para kvm llamado **disk.qcow2**, dentro del directorio **output**. En el portátil ya se encuentra definida una máquina virtual para ejecutarse desde este archivo después de copmarlo a una carpeta compartida, sobreescribiendo el archivo existente.
+Once the script has finished executing, the virtual machine disk will have been created and placed inside the **output** directory. The script copies this disk to a shared unit so that the virtual machine can be run on the laptop.
 
 [TIP]
 =====
-Para arrancar la máquina virtual con el disco creado en el entorno gráfico del portátil vamos al launcher situado abajo y pinchamos en **Launch VM** que arrancará la máquina virtual **image-mode-test** utilizando el el disco que contiene la máquina virtual que hemos creado:
+Using the **cd** and **ls** commands, you can navigate the **output** directory created on the **imagemode** machine to see the type of content that has been generated.
+=====
+
+The previous script has created, as you have seen, a virtual disk for KVM called **disk.qcow2**, inside the **output** directory. On the laptop, a virtual machine is already defined to run from this file after copying it to a shared folder, overwriting the existing file.
+
+[TIP]
+=====
+To start the virtual machine with the created disk in the graphical environment of the laptop, go to the launcher at the bottom and click on **Launch VM**, which will start the virtual machine **image-mode-test** using the disk containing the virtual machine we created:
 
 image::launchvm.png[]
 
-Una vez arrancada la máquina virtual:
+Once the virtual machine has started:
 
 image::vm.png[]
 =====
 
-Ahora podemos conectarnos a la máquina virtual que hemos creado y explorar.
+Now we can connect to the virtual machine we have created and explore.
 
 [TIP]
 =====
-Tenemos dos formas de conectarnos: 
+There are two ways to connect:
 
-* Desde la máquina virtual **imagemode** con el usuario **root** nos podemos conectar por ssh a la máquina creadada sin utilizar password ya que hemos configurado la clave pública en el fichero **config.toml**. La máquina virtual que hemos creado se llama **imagemodetest**:
+* From the **imagemode** machine as the **root** user, we can connect via SSH to the created machine without using a password since we configured the public key in the **config.toml** file. The virtual machine we created is called **imagemodetest**:
 
-[.lines_7]
-[.console-input]
-[source,bash,subs="+macros,+attributes"]
-----
+```bash
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-[demouser@imagemodetest ~]$ 
-----
+[demouser@imagemodetest ~]$
+```
 
-* La otra forma de conectarnos es a través de la consola que hemos abierto con **Launch VM**. En este caso si nos pedirá constraseña. El usuario y la contraseña los tenemos en el fichero **config.toml**.
+* The other way to connect is through the console we opened with **Launch VM**. In this case, it will ask for a password. The user and password are in the **config.toml** file.
 
-Desde el portátil, abre una pestaña del navegador y conectate a la máquina que acabas de https://imagemodetest.lab.melmac.univ[crear] para comprobar si la aplicación funciona correctamente.
+From the laptop, open a browser tab and connect to the newly [created machine](https://imagemodetest.lab.melmac.univ) to verify that the application is working correctly.
 =====
 
 [IMPORTANT]
-====
-Como ejemplo hemos desplegado una aplicación muy simple ya que el objetivo de este lab es ilustrar el proceso necesario para crear una máquina virtual con una aplicación mediante un contenedor.
-====
+=====
+As an example, we have deployed a very simple application since the goal of this lab is to illustrate the process necessary to create a virtual machine with an application using a container.
+=====
 
 [#update-rollback]
-== Actualización y rollback
+== Update and Rollback
 
-`+bootc+` es el comando que maneja los contenedores dentro de la VM. Viene con un temporizador que regularmente activa un servicio de systemd.
-Ese servicio, si detecta que una nueva imagen está disponible, la descarga y reinicia el sistema para aplicarla.
-
++bootc+ is the command that manages containers within the VM. It includes a timer that regularly triggers a systemd service.
+That service, if it detects that a new image is available, downloads it and restarts the system to apply the update.
 [TIP]
-=====
-Después de hacer login en la máquina comprobamos que el temporizador está activo. En el caso de que no estemos conectados a la máquina que hemos creado, **imagemodetest**, nos conectamos a ella utilizando el usuario **root** desde la máquina **imagemode**:
 
+After logging into the machine, we check that the timer is active. If we are not connected to the machine we created, imagemodetest, we connect to it using the root user from the imagemode machine:
 [.lines_7]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
-----
+
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v1
+Welcome to a machine deployed with bootc-container-vm v1
 [demouser@imagemodetest ~]$ sudo su -
-[sudo] password for demouser: 
-Last login: Fri Oct  4 09:24:32 UTC 2024 on pts/0
+[sudo] password for demouser:
+Last login: Fri Oct 4 09:24:32 UTC 2024 on pts/0
 [root@imagemodetest ~]# systemctl status bootc-fetch-apply-updates.timer
 ● bootc-fetch-apply-updates.timer - Apply bootc updates
-     Loaded: loaded (/usr/lib/systemd/system/bootc-fetch-apply-updates.timer; disabled; preset: disabled)
-     Active: active (waiting) since Fri 2024-10-04 09:23:58 UTC; 14min ago
-      Until: Fri 2024-10-04 09:23:58 UTC; 14min ago
-    Trigger: Fri 2024-10-04 09:39:24 UTC; 27s left
-   Triggers: ● bootc-fetch-apply-updates.service
-       Docs: man:bootc(8)
+Loaded: loaded (/usr/lib/systemd/system/bootc-fetch-apply-updates.timer; disabled; preset: disabled)
+Active: active (waiting) since Fri 2024-10-04 09:23:58 UTC; 14min ago
+Until: Fri 2024-10-04 09:23:58 UTC; 14min ago
+Trigger: Fri 2024-10-04 09:39:24 UTC; 27s left
+Triggers: ● bootc-fetch-apply-updates.service
+Docs: man:bootc(8)
 
 Oct 04 09:23:58 imagemodetest.lab.melmac.univ systemd[1]: Started Apply bootc updates.
-
 [root@imagemodetest ~]#
-----
+
 =====
 
-Observar que al iniciar sesión con el usuario **demouser** veremos un mensaje de bienvenida **Bienvenido a una máquina desplegada con bootc-container-vm v1**. Este mensaje se modificará en la actualización que haremos a continuación.
+Note that when logging in with the demouser user, we see a welcome message: Welcome to a machine deployed with bootc-container-vm v1. This message will change after the update we are about to perform.
 
-Ahora vamos a crear una nueva imagen y subirla al registro. Eso hará que el sistema se autoactualice ya que el timer detectará que existe una versión nueva del contenedor. 
-
+Now, we will create a new image and push it to the registry. This will cause the system to update automatically, as the timer will detect that a new version of the container is available.
 [IMPORTANT]
-=====
-Observa que en el proceso de actualización NO es necesario crear la máquina virtual a partir del contenedor que vamos a crear con los cambios. La creación de la máquina virtual a partir de un contenedor se hará ÚNICAMENTE la primera vez.
 
-Una vez creada la máquina virtual bastará con actualizar el contenedor para aplicar los cambios.
-=====
-
+Note that during the update process, it is NOT necessary to create the virtual machine from the container with the changes. The VM creation from a container is done ONLY the first time.
+Once the VM is created, updating the container is enough to apply the changes.
 [TIP]
-=====
 
-En la máquina **imagemodetest** comprobaremos las versiones disponibles que tenemos en la máquina:
-
+On the imagemodetest machine, we will check the available versions:
 [.lines_7]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
-----
 [root@imagemodetest ~]# rpm-ostree status
 State: idle
 Deployments:
 ● ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
-                   Digest: sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
-                  Version: 9.20240930.0 (2024-10-04T09:19:28Z)
-[root@imagemodetest ~]# 
-----
+Digest: sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+Version: 9.20240930.0 (2024-10-04T09:19:28Z)
+[root@imagemodetest ~]#
 
-Vemos que tenemos únicamente una versión disponible en la máquina (**Version: 9.20240930.0 (2024-10-04T09:19:28Z)**) y que se encuentra en el registry **registry.lab.melmac.univ:5000/rhel-bootc-vm:latest**. Este es el contenedor que creamos inicialmente y que hemos utilizado para construir la máquina virtual.
+We see that there is only one version available on the machine (Version: 9.20240930.0 (2024-10-04T09:19:28Z)), and it is in the registry registry.lab.melmac.univ:5000/rhel-bootc-vm:latest. This is the container we initially created and used to build the VM.
 
-Ahora observaremos el estado del servicio **bootc-fetch-apply-updates** en la máquina **imagemodetest**. Este servicio se encarga de monitorizar el registry en el que se encuentra el contenedor utilizado para construir la máquina virtual:
-
+Now, we will check the status of the bootc-fetch-apply-updates service on the imagemodetest machine. This service monitors the registry containing the container used to build the VM:
 [.lines_7]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
-----
 [root@imagemodetest ~]# journalctl -f -u bootc-fetch-apply-updates
 Oct 04 09:40:49 imagemodetest.lab.melmac.univ bootc[1572]: No changes in registry.lab.melmac.univ:5000/rhel-bootc-vm:latest => sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
 Oct 04 09:40:49 imagemodetest.lab.melmac.univ bootc[1572]: No update available.
@@ -361,21 +301,20 @@ Oct 04 09:41:29 imagemodetest.lab.melmac.univ bootc[1584]: No update available.
 Oct 04 09:41:29 imagemodetest.lab.melmac.univ systemd[1]: bootc-fetch-apply-updates.service: Deactivated successfully.
 Oct 04 09:41:29 imagemodetest.lab.melmac.univ systemd[1]: Finished Apply bootc updates.
 ...
-----
 
-Esta sesión se quedará "bloqueada" e irá mostrando todas las notificaciones del servicio. Por este motivo deberemos abrir otra sesión a la máquina **imagemode**.
+This session will remain "locked" and continuously display all service notifications. For this reason, we must open another session to the imagemode machine.
 
-Abrimos otra terminal en el portatil y nos conectamos a la máquina **imagemode**. Utilizaremos el Containerfile **Containerfile.rhel9.4.mod** donde hemos modificado algunas cosas, como instalar el paquete **tmux**. 
+We open another terminal on the laptop and connect to the imagemode machine. We will use the Containerfile.rhel9.4.mod file, where we have modified some aspects, such as installing the tmux package.
 
-Ejecutaremos el script **bash create-container-mod.sh** que se encargará de crear la nueva version del **bootc container**. 
+We will execute the bash create-container-mod.sh script, which will create the new version of the bootc container.
 
-En este caso no será necesario crear la imagen de la máquina virtual, ya que ya existe. Lo único que nos interesa es actualizar la máquina virtual con las nuevas modificaciones.
+In this case, it is not necessary to create the VM image again since it already exists. Our only concern is updating the VM with the new modifications.
 
-Antes de crear la imágen actualizada sería interesante poner en primer plano la consola que hemos abierto con **Launch VM** y la shell de SSH para poder ver el reinicio de la máquina:
+Before creating the updated image, it would be useful to bring the Launch VM console and the SSH shell to the foreground so we can see the machine restarting:
 
 image::console.png[]
 
-Una vez que tenemos en primer plano ambas procedemos en la consola de SSH:
+Once both are in the foreground, we proceed in the SSH console:
 
 [.lines_7]
 [.console-input]
@@ -404,8 +343,7 @@ CMD [ "/sbin/init" ]
 ... 
 [root@imagemode image-mode]# 
 ----
-
-Volvemos a la sesión de la máquina **imagemodetest** donde lanzamos el comando **journalctl -f -u bootc-fetch-apply-updates**.  Veremos que encuentra la actualización, descarga los datos y reinicia el sistema para actualizarlo.
+We return to the imagemodetest machine session, where we previously ran the journalctl -f -u bootc-fetch-apply-updates command. We will see that it detects the update, downloads the data, and restarts the system to apply it.
 
 [.lines_7]
 [.console-input]
@@ -427,10 +365,9 @@ Connection to imagemodetest closed by remote host.
 Connection to imagemodetest closed.
 [root@imagemode image-mode]# 
 ----
+In the console that opens when launching **Launch VM**, we can see the reboot. We can see that there are now two entries in the **GRUB** boot loader. The selected option corresponds to the update, while the other corresponds to the virtual machine we originally created.
 
-En la consola que abrimos al lanzar **Launch VM** podremos ver el reinicio, podremos ver que ahora existen dos entradas en el gestor de arranque **GRUB**. La opción seleccionada corresponde a la actualización, mientras que la otra corresponde a la máquina virtual que creamos originalmente.
-
-Ha detectado que hay una actualización nueva, la ha descargado, la ha aplicado y reiniciado el servicio. Nos conectamos de nuevo en cuando haya reiniciado, veremos que el proceso de actualización es muy rápido:
+It has detected a new update, downloaded it, applied it, and restarted the service. We connect again after rebooting; we will see that the update process is very fast:
 
 [.lines_7]
 [.console-input]
@@ -455,13 +392,13 @@ Deployments:
 [root@imagemodetest ~]# 
 ----
 
-Ahora vemos que tenemos dos versiones disponibles (podemos utilizar la hora para distinguir las dos versiones), la antigua generada cuando creamos la máquina virtual y la nueva que hemos creado que vemos que es la seleccionada. Cada una de estas versiones se corresponde con una entrada en el gestor de arranque **GRUB**, con lo cual podemos arrancar la versión que consideremos.
+Now we see that we have two versions available (we can use the time to distinguish between the two versions): the old one generated when we created the virtual machine, and the new one we created, which we see is the selected one. Each of these versions corresponds to an entry in the GRUB boot loader, allowing us to boot any version we want.
 
 image::imagemodetest-upgraded.png[]
 
-Después del reinicio, hacemos login y comprobamos que efectivamente, el sistema ha sido actualizado.
+After the reboot, log in and verify that the system has indeed been updated.
 
-Si encontramos problemas con esta actualización podemos revertirla sin problema. Manualmente lo conseguimos ejecutando:
+If we encounter problems with this update, we can easily roll it back. We can do this manually by running:
 
 [.lines_7]
 [.console-input]
@@ -473,14 +410,14 @@ Next boot: rollback deployment
 [root@imagemodetest ~]#  reboot
 ----
 
-El sistema reiniciará y veremos que nos encontramos en la versión previa:
+The system will reboot and we will see that we are in the previous version:
 
 [.lines_7]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v1
+Welcome to a machine deployed with bootc-container-vm v1
 Last login: Fri Oct  4 10:45:15 2024 from 192.168.122.202
 [demouser@imagemodetest ~]$ rpm-ostree status
 State: idle
@@ -495,23 +432,22 @@ Deployments:
 [demouser@imagemodetest ~]$
 ----
 
-Podemos ver que el mensaje de bienvenida vuelve a mostrar **Bienvenido a una máquina desplegada con bootc-container-vm v1** y que la versión activa es la primera que instalamos.
+We can see that the welcome message again displays **Welcome to a machine deployed with bootc-container-vm v1** and that the active version is the first one we installed.
 
-Si esperamos un poco veremos que la máquina se reinicia y una vez reiniciada si nos conectamos:
+If we wait a bit, we'll see the machine reboot, and once rebooted, if we connect:
 
 [.lines_7]
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v2
+Welcome to a machine deployed with bootc-container-vm v2
 Last login: Fri Oct  4 10:47:28 2024 from 192.168.122.202
 [demouser@imagemodetest ~]$
 ----
+We see that the welcome message has changed to **Welcome to a machine deployed with bootc-container-vm v2**. What happened is that the timer is still active and has detected that there is a new version in the registry since we returned to the old version when performing the rollback, and it proceeds to update it.
 
-Vemos que el mensaje de bienvenida ha cambiado siendo **Bienvenido a una máquina desplegada con bootc-container-vm v2**. Lo que ha pasado es que el timer sigue activo y ha detectado que en el registry existe una nueva versión ya que al hacer el rollback hemos vuelto a la antigua, y procede a actualizarla. 
-
-Si queremos evitar que el sistema se auto-actualice de nuevo a la versión errónea, debemos deshabilitar el temporizador:
+If we want to prevent the system from automatically updating to the wrong version again, we must disable the timer:
 
 [.lines_7]
 [.console-input]
@@ -520,7 +456,7 @@ Si queremos evitar que el sistema se auto-actualice de nuevo a la versión erró
 [root@imagemodetest ~]# systemctl disable --now bootc-fetch-apply-updates.timer
 ----
 
-Una vez desactivado podemos proceder a realizar el rollback y veremos que esta vez no se autoactualiza:
+Once disabled, we can proceed to perform the rollback and we will see that this time it does not auto-update:
 
 [.lines_7]
 [.console-input]
@@ -539,7 +475,7 @@ Y una vez que la máquina **imagemodetest** haya iniciado:
 [source,bash,subs="+macros,+attributes"]
 ----
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v1
+Welcome to a machine deployed with bootc-container-vm v1
 Last login: Fri Oct  4 10:52:53 2024 from 192.168.122.202
 [demouser@imagemodetest ~]$
 ----
@@ -547,29 +483,29 @@ Last login: Fri Oct  4 10:52:53 2024 from 192.168.122.202
 
 [IMPORTANT]
 =====
-Por simplicidad se ha instalado un registry local y solo se mantiene una copia de la imagen del contenedor con el tag **latest**. 
+For simplicity, a local registry has been installed, and only one copy of the container image with the **latest** tag is maintained.
 
-En un sistema en producción en el registry se encontrarán varias imágenes del contenedor tageadas con su versión correspondiente, por ejemplo **v1**, **v2**, ... y se utilizaría el tag **latest** para "apuntar" a la versión que es necesario ejecutar en producción. 
+In a production system, the registry will contain several container images tagged with their corresponding versions, for example, **v1**, **v2**, etc., and the **latest** tag would be used to "point" to the version that needs to be run in production.
 
-Si se decidiera utilizar el timer para la autoactualización entonces al hacer el rollback se cambiaría en el registry el tag **latest** para que apuntará a la versión del contenedor que se va a hacer rollback. De de esta forma, la información del registry sea congruente con la configuración en producción.
+If the decision were made to use the timer for auto-update, then when performing the rollback, the **latest** tag would be changed in the registry to point to the container version being rolled back. This way, the registry information is consistent with the production configuration.
 =====
 
 [NOTE]
 =====
-Se puede detectar si la actualización no funciona de forma correcta y realizar el rollback de forma autómatica. Este método se hace utilizando https://github.com/fedora-iot/greenboot[greenboot] que es el mismo mecanismo que utiliza la versión de RHEL para Edge. En estos momentos esta funcionalidad se está integrando con los contenedores **bootc** y estará disponible en el futuro. 
+You can detect if the update isn't working correctly and perform a rollback automatically. This method is done using https://github.com/fedora-iot/greenboot[greenboot], which is the same mechanism used by the RHEL version for Edge. This feature is currently being integrated with the **bootc** containers and will be available in the future.
 =====
 
 [#next]
-== Siguientes pasos
+== Next steps
 
-Hemos visto:
+We have seen:
 
-* Como crear una máquina virtual a partir de un contenedor.
-* El proceso de actualizar es tan sencillo como recrear el contenedor con las actualizaciones necesarios a partir del que hemos creado la máquina virtual.
-* La actualización se puede hacer de forma automática, aunque también se puede lanzar de forma manual mediante automatismos.
-* El proceso de actualización es muy rápido y sencillo.
-* El proceso de marcha atrás es muy rápido y sencillo.
+* How to create a virtual machine from a container.
+* The update process is as simple as recreating the container with the necessary updates from the one from which we created the virtual machine.
+* The update can be done automatically, although it can also be launched manually using automations.
+* The update process is very quick and easy.
+* The rollback process is very quick and easy.
 
-Si deseas conocer más nos puedes preguntar durante el evento o bien puedes hablar con el equipo de cuenta de Red Hat en tu empresa y pedirles una sesión con los especialistas de RHEL.
+If you'd like to learn more, you can ask us during the event or speak to your company's Red Hat account team and request a session with RHEL specialists.
 
 image::graduation.png[]

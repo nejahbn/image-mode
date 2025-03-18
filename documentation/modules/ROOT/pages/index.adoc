@@ -3,35 +3,35 @@
 :!sectids:
 
 [.text-center.strong]
-== Resumen
+== Summary
 
 image::connect.png[]
 
-RHEL image mode para Red Hat Enterprise Linux (RHEL) es un nuevo método de despliegue que utiliza una aproximación de contenedores para gestionar el sistema operativo mediante contenedores.
+RHEL Image Mode for Red Hat Enterprise Linux (RHEL) is a new deployment method that uses a container-based approach to manage the operating system through containers.
 
-Actualmente se encuentra como Technology Preview, es decir que no está soportado para producción, pero se puede empezar a utilizar para irse familiarizando con image mode y ver no solo como encaja sino también qué soluciones ofrece a los clientes sobre las problematicas que sufren hoy en día.
+It is currently available as a Technology Preview, meaning it is not supported for production use. However, it can be used to become familiar with Image Mode and explore not only how it fits but also what solutions it offers to customers facing today's challenges.
 
-RHEL image mode sigue una metodología GitOps y CI/CD para gestionar desde las aplicaciones desplegadas hasta el propio sistema operativo.
+RHEL Image Mode follows a GitOps and CI/CD methodology to manage everything from deployed applications to the operating system itself.
 
-El objetivo de este lab es empezar a familiarizarse con RHEL Image Mode:
+The goal of this lab is to get started with RHEL Image Mode:
 
-1. Crear una máquina virtual a partir de la imagen de un contenedor.
-2. Realizar una actualización de la máquina virtual.
-3. Realizar un rollback manual.
+1. Create a virtual machine from a container image.
+2. Perform an update on the virtual machine.
+3. Manually perform a rollback.
 
 [.tiles.browse]
-== Contenido
+== Content
 
 [.tile]
-.xref:01-introduccion.adoc[1. Introducción]
+.xref:01-introduccion.adoc[1. Introduction]
 * xref:01-introduccion.adoc#bootable[Bootable Containers]
 
 [.tile]
-.xref:02-caso-practico.adoc[2. Caso Práctico]
-* xref:02-caso-practico.adoc#descripcion[Descripción]
-* xref:02-caso-practico.adoc#crear-images[Creación de la primera imagen]
-* xref:02-caso-practico.adoc#update-rollback[Actualización y rollback]
-* xref:02-caso-practico.adoc#next[Siguientes pasos]
+.xref:02-caso-practico.adoc[2. Practical Case]
+* xref:02-caso-practico.adoc#descripcion[Description]
+* xref:02-caso-practico.adoc#crear-images[Creating the First Image]
+* xref:02-caso-practico.adoc#update-rollback[Update and Rollback]
+* xref:02-caso-practico.adoc#next[Next Steps]
 
 [.tile]
-.xref:03-resources.adoc[Recursos]
+.xref:03-resources.adoc[Resources]

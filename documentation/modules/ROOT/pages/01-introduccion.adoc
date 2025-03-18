@@ -1,27 +1,27 @@
-= Introducción a RHEL Image Mode
+= Introduction to RHEL Image Mode
 include::_attributes.adoc[]
 
 [#bootable]
 == Bootable Containers
 
-Bootable containers o **bootc** es una herramienta que se utiliza para crear contenedores que incluyen el kernel, el cargador de arranque u otros componentes que no se incluyen en los contenedores normalmente. Una vez creado un contenedor de este tipo, se sube a un registry, al igual que cualquier contenedor y mediante **image builder** podemos crear imágenes de RHEL que se desplegarán sobre cualquier infraestructura, máquinas físicas, virtuales o en proveedores cloud.
+Bootable containers or **bootc** is a tool used to create containers that include the kernel, bootloader, or other components that are not typically included in containers. Once this type of container is created, it is uploaded to a registry like any other container, and using **image builder**, we can create RHEL images that can be deployed on any infrastructure, including physical machines, virtual machines, or cloud providers.
 
 image::containervsbootc.png[]
        
-Esta nueva forma de gestionar el sistema operativo también permite actualizar dichos componentes a partir de imágenes de contenedores bootables.
+This new way of managing the operating system also allows updating these components from bootable container images.
 
 image::bootcnutshell.png[]
 
-Bootable containers son contenedores que implementan el estándar de OCI para construir un contenedor que incluye el sistema operativo junto con el kernel. Todo esto se hace utilizando las herramientas ya existentes para construir contenedores, como https://www.redhat.com/en/topics/containers/what-is-podman[podman].
+Bootable containers are containers that implement the OCI standard to build a container that includes the operating system along with the kernel. All of this is done using existing tools for building containers, such as https://www.redhat.com/en/topics/containers/what-is-podman[podman].
 
 [IMPORTANT]
 ====
-RHEL Image Mode se encuentra actualmente disponible en RHEL 9.4 como **Technology Preview (TP)**, lo que significa que no se encuentra todavía listo para su uso en producción. Sin embargo, puede usarse para ir familiarizándose con la tecnología, de esta forma cuando pase a **General Availability (GA)** aquellos que lo consideren útil podrán empezar a usarlo desde el primer momento.
+RHEL Image Mode is currently available in RHEL 9.4 as a **Technology Preview (TP)**, meaning it is not yet ready for production use. However, it can be used to become familiar with the technology so that when it reaches **General Availability (GA)**, those who find it useful can start using it immediately.
 ====
 
-En este workshop la parte práctica que tiene que realizar el alumno vendrá indicada de la siguiente forma:
+In this workshop, the practical exercises that the student needs to complete will be indicated as follows:
 
 [TIP]
 =====
-Ejemplo práctico para que lo haga el alumno.
+Practical example for the student to complete.
 =====

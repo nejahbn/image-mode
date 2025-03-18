@@ -1,10 +1,11 @@
-* xref:01-introduccion.adoc[1. Introducción]
+* xref:01-introduccion.adoc[1. Introduction]
 ** xref:01-introduccion.adoc#bootable[Bootable Containers]
 
-* xref:02-caso-practico.adoc[2. Caso Práctico]
-** xref:02-caso-practico.adoc#descripcion[Descripción]
-** xref:02-caso-practico.adoc#crear-images[Creación de la primera imagen]
-** xref:02-caso-practico.adoc#update-rollback[Actualización y rollback]
-** xref:02-caso-practico.adoc#next[Siguientes pasos]
+* xref:02-caso-practico.adoc[2. Practical Case]
+** xref:02-caso-practico.adoc#descripcion[Description]
+** xref:02-caso-practico.adoc#crear-images[Creating the First Image]
+** xref:02-caso-practico.adoc#update-rollback[Update and Rollback]
+** xref:02-caso-practico.adoc#next[Next Steps]
 
-* xref:03-resources.adoc[Recursos]
+* xref:03-resources.adoc[Resources]
+
