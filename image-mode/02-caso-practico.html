@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Creating a Virtual Machine with Bootc Containers :: RHEL Image Mode</title>
+    <link rel="canonical" href="https://redhat-iberia.github.io/image-mode/image-mode/02-caso-practico.html">
+    <link rel="prev" href="01-introduccion.html">
+    <link rel="next" href="03-resources.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-iberia.github.io/image-mode">RHEL Image Mode</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="image-mode" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduccion.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="01-introduccion.html#bootable">Bootable Containers</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-caso-practico.html">2. Practical Case</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#descripcion">Description</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#crear-images">Creating the First Image</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#update-rollback">Update and Rollback</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#next">Next Steps</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="03-resources.html">Resources</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">RHEL Image Mode</a></li>
+    <li><a href="02-caso-practico.html">2. Practical Case</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/nejahbn/microlab-image_mode/edit/main/documentation/modules/ROOT/pages/02-caso-practico.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Creating a Virtual Machine with Bootc Containers</h1>
+<div class="sect1">
+<h2 id="descripcion"><a class="anchor" href="#descripcion"></a>Description</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this practical case, we will create a virtual machine (VM) from a container image.</p>
+</div>
+<div class="paragraph">
+<p>We will see how bootc leverages existing container technology to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create the application in terms of its container at creation time—the system is not changed once deployed.</p>
+</li>
+<li>
+<p>Automatically access the registry of the deployed container image to automatically update the system.</p>
+</li>
+<li>
+<p>Revert the last change.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The infrastructure you will use for this lab is as follows:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/diagram.png" alt="diagram">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A laptop with Red Hat Enterprise Linux 9.4 as the workstation.</p>
+</li>
+<li>
+<p>A virtual machine</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For the lab, use the user <strong>student</strong> and password <strong>redhat</strong> to access the <strong>imagemode</strong> machine using ssh from the laptop.</p>
+</div>
+<div class="paragraph">
+<p>To access the <strong>image-mode-test</strong> machine once it has been created, you can connect to it via ssh with the <strong>root</strong> user from the <strong>imagemode</strong> machine, using the <strong>demouser</strong> username and password <strong>redhat</strong>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Once you finish the lab, it is VERY important to log out so that the environment resets and the next user can use it.</p>
+</div>
+<div class="paragraph">
+<p>Thank you very much!!!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="crear-images"><a class="anchor" href="#crear-images"></a>Creating the First Image</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The definition of a container is almost the same as a traditional container, with the only difference being the <code>FROM</code> clause.</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">FROM registry.redhat.io/rhel9/rhel-bootc:9.4</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To access the above image, it is necessary to authenticate in the Red Hat registry with a valid user. In this lab, the image</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>As mentioned, <strong>bootc containers</strong> is in <strong>Technology Preview</strong>, and there are still configuration options being implemented. For this reason, we had to resort to:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">RUN /usr/bin/dnf -y install firewalld httpd php mod_ssl langpacks-es &amp;&amp; /usr/bin/rm -f /etc/httpd/conf.d/welcome.conf &amp;&amp; /usr/bin/systemctl enable httpd</code></pre>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>The systemd timer responsible for checking for updates:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ cat bootc-fetch-apply-updates.timer
+[Unit]
+Description=Apply bootc updates
+Documentation=man:bootc(8)
+ConditionPathExists=/run/ostree-booted
+
+[Timer]
+OnBootSec=30seconds
+# This time is relatively arbitrary and obviously expected to be overridden/changed
+OnUnitActiveSec=30seconds
+OnUnitInactiveSec=30seconds
+# When deploying a large number of systems, it may be beneficial to increase this value to help with load on the registry.
+RandomizedDelaySec=5seconds
+
+[Install]
+WantedBy=timers.target
+$</code></pre>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>Open a terminal on the laptop and connect via ssh with the <strong>student</strong> user to the <strong>imagemode</strong> host, where we create the container using podman. A script named <strong>create-container.sh</strong> is provided, which will handle creating the container just by running it:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[imagemode@workstation ~]$ ssh student@imagemode
+[student@imagemode ~]$ sudo su -
+[root@imagemode ~]# cd image-mode
+[root@imagemode image-mode]# cat create-container.sh
+#!/bin/bash
+
+podman build -f Containerfile.rhel9.4 -t rhel-bootc-vm:latest .
+
+if [ $? -ne 0 ]
+then
+  echo "ERROR BUILDING THE IMAGE"
+  exit 1
+fi
+
+podman tag localhost/rhel-bootc-vm:latest registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+
+if [ $? -ne 0 ]
+then
+  echo "ERROR TAGGING THE IMAGE"
+  exit 1
+fi
+
+podman push registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+
+if [ $? -ne 0 ]
+then
+  echo "ERROR PUSHING THE IMAGE"
+  exit 1
+fi
+[root@imagemode image-mode]# bash create-container.sh
+...
+[root@imagemode image-mode]# podman images
+REPOSITORY                                    TAG         IMAGE ID       CREATED           SIZE
+localhost/rhel-bootc-vm                       latest       cc3e1af1b6a6  2 minutes ago     1.75 GB
+...
+[root@imagemode image-mode]#</code></pre>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>In the case of bootable containers, we are not going to run these images on existing systems but rather create systems with these containers already installed.</p>
+</div>
+<div class="paragraph">
+<p>We can create systems in several ways:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>With images for virtual machines.</p>
+</li>
+<li>
+<p>By creating DVDs (ISO) that we can use to automatically install a bare-metal server with [kickstart](<a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automatically_installing_rhel/automated-installation-workflow_rhel-installer#automated-installation-workflow_rhel-installer" class="bare">https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automatically_installing_rhel/automated-installation-workflow_rhel-installer#automated-installation-workflow_rhel-installer</a>).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In this lab, we will focus on point 1. We will use [bootc-image-builder](<a href="https://github.com/osbuild/bootc-image-builder" class="bare">https://github.com/osbuild/bootc-image-builder</a>) to create a KVM-type VM to run on Linux using [libvirt](<a href="https://libvirt.org" class="bare">https://libvirt.org</a>).</p>
+</div>
+<div class="paragraph">
+<p>The bootc-image-builder is designed to run from a container. We create a <code>config.toml</code> file to configure a user and use Podman to run the application with our container. More information at [bootc-image-builder](<a href="https://github.com/osbuild/bootc-image-builder" class="bare">https://github.com/osbuild/bootc-image-builder</a>).</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>On the <strong>imagemode</strong> machine, where we are already connected as user <strong>root</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# mkdir output
+[root@imagemode image-mode]# cat config.toml
+[[blueprint.customizations.user]]
+name = "demouser"
+password = "redhat"
+key = "ssh-rsa ...."
+groups = ["wheel"]
+
+[root@imagemode image-mode]# cat creating-vm.sh
+#!/bin/bash
+
+/usr/bin/podman run --rm -it --privileged --pull=newer --security-opt label=type:unconfined_t \
+           -v $(pwd)/config.toml:/config.toml:ro -v $(pwd)/output:/output -v /var/lib/containers/storage:/var/lib/containers/storage \
+           registry.redhat.io/rhel9/bootc-image-builder:latest \
+           --type qcow2 --local registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+
+if [ $? -ne 0 ]
+then
+  echo "An error occurred while creating the VM"
+  exit 1
+fi
+
+/usr/bin/qemu-img convert -f qcow2 -O qcow2 -o lazy_refcounts=on $(pwd)/output/qcow2/disk.qcow2 /imagemode/image-mode-test.qcow2
+[root@imagemode image-mode]# bash creating-vm.sh
+...
+[root@imagemode image-mode]#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>It will be necessary to wait for the script execution to complete before continuing with the lab.</strong></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>Check the <strong>config.toml</strong> configuration file as it defines the user that will be used to connect to the virtual machine we are going to create, along with their password. It also configures the public key of the <strong>root</strong> user of the <strong>imagemode</strong> machine. This allows access from that user to the created machine via SSH with the <strong>demouser</strong> user without providing a password. However, in the newly created machine, we will need the <strong>demouser</strong> user’s password to access the <strong>root</strong> user.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Once the script has finished executing, the virtual machine disk will have been created and placed inside the <strong>output</strong> directory. The script copies this disk to a shared unit so that the virtual machine can be run on the laptop.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Using the <strong>cd</strong> and <strong>ls</strong> commands, you can navigate the <strong>output</strong> directory created on the <strong>imagemode</strong> machine to see the type of content that has been generated.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>The previous script has created, as you have seen, a virtual disk for KVM called <strong>disk.qcow2</strong>, inside the <strong>output</strong> directory. On the laptop, a virtual machine is already defined to run from this file after copying it to a shared folder, overwriting the existing file.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>To start the virtual machine with the created disk in the graphical environment of the laptop, go to the launcher at the bottom and click on <strong>Launch VM</strong>, which will start the virtual machine <strong>image-mode-test</strong> using the disk containing the virtual machine we created:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/launchvm.png" alt="launchvm">
+</div>
+</div>
+<div class="paragraph">
+<p>Once the virtual machine has started:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/vm.png" alt="vm">
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Now we can connect to the virtual machine we have created and explore.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>There are two ways to connect:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>From the <strong>imagemode</strong> machine as the <strong>root</strong> user, we can connect via SSH to the created machine without using a password since we configured the public key in the <strong>config.toml</strong> file. The virtual machine we created is called <strong>imagemodetest</strong>:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+[demouser@imagemodetest ~]$</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The other way to connect is through the console we opened with <strong>Launch VM</strong>. In this case, it will ask for a password. The user and password are in the <strong>config.toml</strong> file.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>From the laptop, open a browser tab and connect to the newly [created machine](<a href="https://imagemodetest.lab.melmac.univ" class="bare">https://imagemodetest.lab.melmac.univ</a>) to verify that the application is working correctly.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>As an example, we have deployed a very simple application since the goal of this lab is to illustrate the process necessary to create a virtual machine with an application using a container.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div id="update-rollback" class="paragraph">
+<p>== Update and Rollback</p>
+</div>
+<div class="paragraph">
+<p>bootc is the command that manages containers within the VM. It includes a timer that regularly triggers a systemd service.
+That service, if it detects that a new image is available, downloads it and restarts the system to apply the update.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+After logging into the machine, we check that the timer is active. If we are not connected to the machine we created, imagemodetest, we connect to it using the root user from the imagemode machine:
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+Welcome to a machine deployed with bootc-container-vm v1
+[demouser@imagemodetest ~]$ sudo su -
+[sudo] password for demouser:
+Last login: Fri Oct 4 09:24:32 UTC 2024 on pts/0
+[root@imagemodetest ~]# systemctl status bootc-fetch-apply-updates.timer
+● bootc-fetch-apply-updates.timer - Apply bootc updates
+Loaded: loaded (/usr/lib/systemd/system/bootc-fetch-apply-updates.timer; disabled; preset: disabled)
+Active: active (waiting) since Fri 2024-10-04 09:23:58 UTC; 14min ago
+Until: Fri 2024-10-04 09:23:58 UTC; 14min ago
+Trigger: Fri 2024-10-04 09:39:24 UTC; 27s left
+Triggers: ● bootc-fetch-apply-updates.service
+Docs: man:bootc(8)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Oct 04 09:23:58 imagemodetest.lab.melmac.univ systemd[1]: Started Apply bootc updates.
+[root@imagemodetest ~]#</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that when logging in with the demouser user, we see a welcome message: Welcome to a machine deployed with bootc-container-vm v1. This message will change after the update we are about to perform.</p>
+</div>
+<div class="paragraph">
+<p>Now, we will create a new image and push it to the registry. This will cause the system to update automatically, as the timer will detect that a new version of the container is available.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Note that during the update process, it is NOT necessary to create the virtual machine from the container with the changes. The VM creation from a container is done ONLY the first time.
+Once the VM is created, updating the container is enough to apply the changes.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+On the imagemodetest machine, we will check the available versions:
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# rpm-ostree status
+State: idle
+Deployments:
+● ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+Digest: sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+Version: 9.20240930.0 (2024-10-04T09:19:28Z)
+[root@imagemodetest ~]#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We see that there is only one version available on the machine (Version: 9.20240930.0 (2024-10-04T09:19:28Z)), and it is in the registry registry.lab.melmac.univ:5000/rhel-bootc-vm:latest. This is the container we initially created and used to build the VM.</p>
+</div>
+<div class="paragraph">
+<p>Now, we will check the status of the bootc-fetch-apply-updates service on the imagemodetest machine. This service monitors the registry containing the container used to build the VM:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# journalctl -f -u bootc-fetch-apply-updates
+Oct 04 09:40:49 imagemodetest.lab.melmac.univ bootc[1572]: No changes in registry.lab.melmac.univ:5000/rhel-bootc-vm:latest =&gt; sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+Oct 04 09:40:49 imagemodetest.lab.melmac.univ bootc[1572]: No update available.
+Oct 04 09:40:49 imagemodetest.lab.melmac.univ systemd[1]: bootc-fetch-apply-updates.service: Deactivated successfully.
+Oct 04 09:40:49 imagemodetest.lab.melmac.univ systemd[1]: Finished Apply bootc updates.
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ systemd[1]: Starting Apply bootc updates...
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ bootc[1584]: Fetching ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ bootc[1584]: No changes in registry.lab.melmac.univ:5000/rhel-bootc-vm:latest =&gt; sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ bootc[1584]: No update available.
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ systemd[1]: bootc-fetch-apply-updates.service: Deactivated successfully.
+Oct 04 09:41:29 imagemodetest.lab.melmac.univ systemd[1]: Finished Apply bootc updates.
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This session will remain "locked" and continuously display all service notifications. For this reason, we must open another session to the imagemode machine.</p>
+</div>
+<div class="paragraph">
+<p>We open another terminal on the laptop and connect to the imagemode machine. We will use the Containerfile.rhel9.4.mod file, where we have modified some aspects, such as installing the tmux package.</p>
+</div>
+<div class="paragraph">
+<p>We will execute the bash create-container-mod.sh script, which will create the new version of the bootc container.</p>
+</div>
+<div class="paragraph">
+<p>In this case, it is not necessary to create the VM image again since it already exists. Our only concern is updating the VM with the new modifications.</p>
+</div>
+<div class="paragraph">
+<p>Before creating the updated image, it would be useful to bring the Launch VM console and the SSH shell to the foreground so we can see the machine restarting:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/console.png" alt="console">
+</div>
+</div>
+<div class="paragraph">
+<p>Once both are in the foreground, we proceed in the SSH console:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[imagemode@worstation ~]# ssh student@imagemode
+[student@imagemode ~]$ sudo su -
+[root@imagemode ~]# cd image-mode
+[root@imagemode image-mode]# cat Containerfile.rhel9.4.mod
+FROM registry.redhat.io/rhel9/rhel-bootc:9.4
+RUN /usr/bin/dnf -y install firewalld httpd php mod_ssl langpacks-es tmux &amp;&amp; /usr/bin/rm -f /etc/httpd/conf.d/welcome.conf &amp;&amp; /usr/bin/systemctl enable httpd
+COPY bootc-fetch-apply-updates.timer /lib/systemd/system/
+COPY motd2 /etc/motd.d/motd
+COPY hostname /etc/
+COPY index2.php /var/www/html/index.php
+COPY rhel-logo.png /var/www/html/
+COPY httpd.key /etc/pki/tls/private/
+COPY httpd.crt /etc/pki/tls/certs/
+COPY cacert.pem /etc/pki/tls/certs/
+COPY ssl.conf /etc/httpd/conf.d/
+COPY public.xml /etc/firewalld/zones/
+COPY registries.conf /etc/containers/
+EXPOSE 443
+CMD [ "/sbin/init" ]
+[root@imagemode image-mode]# bash create-container-mod.sh
+...
+[root@imagemode image-mode]#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We return to the imagemodetest machine session, where we previously ran the journalctl -f -u bootc-fetch-apply-updates command. We will see that it detects the update, downloads the data, and restarts the system to apply it.</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# journalctl -f -u bootc-fetch-apply-updates
+....
+Oct 04 10:12:22 imagemodetest.lab.melmac.univ systemd[1]: Starting Apply bootc updates...
+Oct 04 10:12:22 imagemodetest.lab.melmac.univ bootc[2362]: Fetching ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+Oct 04 10:12:22 imagemodetest.lab.melmac.univ bootc[2362]: layers already present: 0; layers needed: 78 (1.0 GB)
+Oct 04 10:12:22 imagemodetest.lab.melmac.univ bootc[2362]: layers already present: 0; layers needed: 78 (1.0 GB)
+Oct 04 10:12:42 imagemodetest.lab.melmac.univ bootc[2362]: Image contains non-ostree compatible file paths: run: 4
+
+Broadcast message from <a href="mailto:root@imagemodetest.lab.melmac.univ">root@imagemodetest.lab.melmac.univ</a> (Fri 2024-10-04 10:12:50 UTC):
+
+The system will reboot now!
+
+Connection to imagemodetest closed by remote host.
+Connection to imagemodetest closed.
+[root@imagemode image-mode]#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the console that opens when launching <strong>Launch VM</strong>, we can see the reboot. We can see that there are now two entries in the <strong>GRUB</strong> boot loader. The selected option corresponds to the update, while the other corresponds to the virtual machine we originally created.</p>
+</div>
+<div class="paragraph">
+<p>It has detected a new update, downloaded it, applied it, and restarted the service. We connect again after rebooting; we will see that the update process is very fast:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+Bienvenido a una máquina desplegada con bootc-container-vm v2
+Last login: Fri Oct  4 10:07:25 2024 from 192.168.122.202
+[demouser@imagemodetest ~]$ sudo su -
+[sudo] password for demouser:
+Last login: Fri Oct  4 10:07:31 UTC 2024 on pts/0
+[root@imagemodetest ~]# rpm-ostree status
+State: idle
+Deployments:
+● ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+                   Digest: sha256:5360e472e60cc8d4c2f01dcaf333c0eba96150dbd79d46d9f15258e687415647
+                  Version: 9.20240930.0 (2024-10-04T10:11:53Z)
+
+  ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+                   Digest: sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+                  Version: 9.20240930.0 (2024-10-04T09:19:28Z)
+[root@imagemodetest ~]#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we see that we have two versions available (we can use the time to distinguish between the two versions): the old one generated when we created the virtual machine, and the new one we created, which we see is the selected one. Each of these versions corresponds to an entry in the GRUB boot loader, allowing us to boot any version we want.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/imagemodetest-upgraded.png" alt="imagemodetest upgraded">
+</div>
+</div>
+<div class="paragraph">
+<p>After the reboot, log in and verify that the system has indeed been updated.</p>
+</div>
+<div class="paragraph">
+<p>If we encounter problems with this update, we can easily roll it back. We can do this manually by running:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# bootc rollback
+bootfs is sufficient for calculated new size: 0 bytes
+Next boot: rollback deployment
+[root@imagemodetest ~]#  reboot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The system will reboot and we will see that we are in the previous version:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+Welcome to a machine deployed with bootc-container-vm v1
+Last login: Fri Oct  4 10:45:15 2024 from 192.168.122.202
+[demouser@imagemodetest ~]$ rpm-ostree status
+State: idle
+Deployments:
+● ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+                   Digest: sha256:90ddf6a6f750042ac4c320e631a94a65cba7d62361b00b6596258cd419083a7b
+                  Version: 9.20240930.0 (2024-10-04T09:19:28Z)
+
+  ostree-unverified-registry:registry.lab.melmac.univ:5000/rhel-bootc-vm:latest
+                   Digest: sha256:5360e472e60cc8d4c2f01dcaf333c0eba96150dbd79d46d9f15258e687415647
+                  Version: 9.20240930.0 (2024-10-04T10:11:53Z)
+[demouser@imagemodetest ~]$</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can see that the welcome message again displays <strong>Welcome to a machine deployed with bootc-container-vm v1</strong> and that the active version is the first one we installed.</p>
+</div>
+<div class="paragraph">
+<p>If we wait a bit, we&#8217;ll see the machine reboot, and once rebooted, if we connect:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+Welcome to a machine deployed with bootc-container-vm v2
+Last login: Fri Oct  4 10:47:28 2024 from 192.168.122.202
+[demouser@imagemodetest ~]$</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We see that the welcome message has changed to <strong>Welcome to a machine deployed with bootc-container-vm v2</strong>. What happened is that the timer is still active and has detected that there is a new version in the registry since we returned to the old version when performing the rollback, and it proceeds to update it.</p>
+</div>
+<div class="paragraph">
+<p>If we want to prevent the system from automatically updating to the wrong version again, we must disable the timer:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# systemctl disable --now bootc-fetch-apply-updates.timer</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once disabled, we can proceed to perform the rollback and we will see that this time it does not auto-update:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemodetest ~]# bootc rollback
+bootfs is sufficient for calculated new size: 0 bytes
+Next boot: rollback deployment
+[root@imagemodetest ~]#  reboot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Y una vez que la máquina <strong>imagemodetest</strong> haya iniciado:</p>
+</div>
+<div class="listingblock lines_7 console-input">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
+Welcome to a machine deployed with bootc-container-vm v1
+Last login: Fri Oct  4 10:52:53 2024 from 192.168.122.202
+[demouser@imagemodetest ~]$</code></pre>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>For simplicity, a local registry has been installed, and only one copy of the container image with the <strong>latest</strong> tag is maintained.</p>
+</div>
+<div class="paragraph">
+<p>In a production system, the registry will contain several container images tagged with their corresponding versions, for example, <strong>v1</strong>, <strong>v2</strong>, etc., and the <strong>latest</strong> tag would be used to "point" to the version that needs to be run in production.</p>
+</div>
+<div class="paragraph">
+<p>If the decision were made to use the timer for auto-update, then when performing the rollback, the <strong>latest</strong> tag would be changed in the registry to point to the container version being rolled back. This way, the registry information is consistent with the production configuration.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+
+</div>
+</div>
+<div class="paragraph">
+<p>You can detect if the update isn&#8217;t working correctly and perform a rollback automatically. This method is done using <a href="https://github.com/fedora-iot/greenboot">greenboot</a>, which is the same mechanism used by the RHEL version for Edge. This feature is currently being integrated with the <strong>bootc</strong> containers and will be available in the future.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div id="next" class="paragraph">
+<p>== Next steps</p>
+</div>
+<div class="paragraph">
+<p>We have seen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>How to create a virtual machine from a container.</p>
+</li>
+<li>
+<p>The update process is as simple as recreating the container with the necessary updates from the one from which we created the virtual machine.</p>
+</li>
+<li>
+<p>The update can be done automatically, although it can also be launched manually using automations.</p>
+</li>
+<li>
+<p>The update process is very quick and easy.</p>
+</li>
+<li>
+<p>The rollback process is very quick and easy.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you&#8217;d like to learn more, you can ask us during the event or speak to your company&#8217;s Red Hat account team and request a session with RHEL specialists.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/graduation.png" alt="graduation">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="01-introduccion.html">1. Introduction</a></span>
+  <span class="next"><a href="03-resources.html">Resources</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

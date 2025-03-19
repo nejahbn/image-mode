@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Introduction to RHEL Image Mode :: RHEL Image Mode</title>
+    <link rel="canonical" href="https://redhat-iberia.github.io/image-mode/image-mode/01-introduccion.html">
+    <link rel="prev" href="index.html">
+    <link rel="next" href="02-caso-practico.html">
+    <meta name="generator" content="Antora 3.0.0">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://developers.redhat.com" target="_blank"><img src="../_/img/RHDLogo.svg" height="40px" alt="Red Hat Developer Program"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="https://redhat-iberia.github.io/image-mode">RHEL Image Mode</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://developers.redhat.com/ebooks/" target="_blank">Books</a>
+        <a class="navbar-item" href="https://developers.redhat.com/cheatsheets/" target="_blank">Cheat Sheets</a>
+        <a class="navbar-item" href="https://developers.redhat.com/events/" target="_blank">Upcoming Events</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">More Tutorials</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/kubernetes-tutorial/" target="_blank">Kubernetes</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/istio-tutorial/" target="_blank">Istio</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/quarkus-tutorial/" target="_blank">Quarkus</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/knative-tutorial/" target="_blank">Knative</a>
+            <a class="navbar-item" href="https://redhat-developer-demos.github.io/tekton-tutorial/" target="_blank">Tekton</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="image-mode" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html"></a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="01-introduccion.html">1. Introduction</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="#bootable">Bootable Containers</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="02-caso-practico.html">2. Practical Case</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-caso-practico.html#descripcion">Description</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-caso-practico.html#crear-images">Creating the First Image</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-caso-practico.html#update-rollback">Update and Rollback</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="02-caso-practico.html#next">Next Steps</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="03-resources.html">Resources</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">RHEL Image Mode</a></li>
+    <li><a href="01-introduccion.html">1. Introduction</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/nejahbn/microlab-image_mode/edit/main/documentation/modules/ROOT/pages/01-introduccion.adoc">Edit this Page</a></div>
+  </div>
+  <div class="content">
+<article class="doc">
+<h1 class="page">Introduction to RHEL Image Mode</h1>
+<div class="sect1">
+<h2 id="bootable"><a class="anchor" href="#bootable"></a>Bootable Containers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Bootable containers or <strong>bootc</strong> is a tool used to create containers that include the kernel, bootloader, or other components that are not typically included in containers. Once this type of container is created, it is uploaded to a registry like any other container, and using <strong>image builder</strong>, we can create RHEL images that can be deployed on any infrastructure, including physical machines, virtual machines, or cloud providers.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/containervsbootc.png" alt="containervsbootc">
+</div>
+</div>
+<div class="paragraph">
+<p>This new way of managing the operating system also allows updating these components from bootable container images.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/bootcnutshell.png" alt="bootcnutshell">
+</div>
+</div>
+<div class="paragraph">
+<p>Bootable containers are containers that implement the OCI standard to build a container that includes the operating system along with the kernel. All of this is done using existing tools for building containers, such as <a href="https://www.redhat.com/en/topics/containers/what-is-podman">podman</a>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>RHEL Image Mode is currently available in RHEL 9.4 as a <strong>Technology Preview (TP)</strong>, meaning it is not yet ready for production use. However, it can be used to become familiar with the technology so that when it reaches <strong>General Availability (GA)</strong>, those who find it useful can start using it immediately.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In this workshop, the practical exercises that the student needs to complete will be indicated as follows:</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Practical example for the student to complete.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="index.html">RHEL Image Mode</a></span>
+  <span class="next"><a href="02-caso-practico.html">2. Practical Case</a></span>
+</nav>
+</article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <a class="rhd-logo" href="https://developers.redhat.com" target="_blank"></div>
+</footer>
+<script src="../_/js/vendor/clipboard.js"></script>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
