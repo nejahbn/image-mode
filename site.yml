@@ -3,7 +3,7 @@ runtime:
 
 site:
   title: RHEL Image Mode
-  url: https://redhat-iberia.github.io/image-mode
+  url: https://nejahbn.github.io/image-mode
   start_page: image-mode::index.adoc
 
 content:
