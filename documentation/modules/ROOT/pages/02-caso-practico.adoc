@@ -174,7 +174,7 @@ then
   exit 1
 fi
 
-/usr/bin/qemu-img convert -f qcow2 -O qcow2 -o lazy_refcounts=on $(pwd)/output/qcow2/disk.qcow2 /imagemode/image-mode-test.qcow2
+/usr/bin/qemu-img convert -f qcow2 -O qcow2 -o lazy_refcounts=on $(pwd)/output/qcow2/disk.qcow2 $(pwd)/output/image-mode-test.qcow2
 [root@imagemode image-mode]# bash creating-vm.sh
 ...
 [root@imagemode image-mode]#
@@ -374,7 +374,7 @@ It has detected a new update, downloaded it, applied it, and restarted the servi
 [source,bash,subs="+macros,+attributes"]
 ----
 [root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v2
+Welcome to a machine deployed with bootc-container-vm v2
 Last login: Fri Oct  4 10:07:25 2024 from 192.168.122.202
 [demouser@imagemodetest ~]$ sudo su -
 [sudo] password for demouser: 
@@ -468,7 +468,7 @@ Next boot: rollback deployment
 [root@imagemodetest ~]#  reboot
 ----
 
-Y una vez que la máquina **imagemodetest** haya iniciado:
+And once the **imagemodetest** machine has started:
 
 [.lines_7]
 [.console-input]
