@@ -343,7 +343,7 @@ then
   exit 1
 fi
 
-/usr/bin/qemu-img convert -f qcow2 -O qcow2 -o lazy_refcounts=on $(pwd)/output/qcow2/disk.qcow2 /imagemode/image-mode-test.qcow2
+/usr/bin/qemu-img convert -f qcow2 -O qcow2 -o lazy_refcounts=on $(pwd)/output/qcow2/disk.qcow2 $(pwd)/output/image-mode-test.qcow2
 [root@imagemode image-mode]# bash creating-vm.sh
 ...
 [root@imagemode image-mode]#</code></pre>
@@ -622,7 +622,7 @@ Connection to imagemodetest closed.
 <div class="listingblock lines_7 console-input">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">[root@imagemode image-mode]# ssh demouser@imagemodetest
-Bienvenido a una máquina desplegada con bootc-container-vm v2
+Welcome to a machine deployed with bootc-container-vm v2
 Last login: Fri Oct  4 10:07:25 2024 from 192.168.122.202
 [demouser@imagemodetest ~]$ sudo su -
 [sudo] password for demouser:
@@ -720,7 +720,7 @@ Next boot: rollback deployment
 </div>
 </div>
 <div class="paragraph">
-<p>Y una vez que la máquina <strong>imagemodetest</strong> haya iniciado:</p>
+<p>And once the <strong>imagemodetest</strong> machine has started:</p>
 </div>
 <div class="listingblock lines_7 console-input">
 <div class="content">
